@@ -7,7 +7,8 @@ We will be analyzing various aspects of the activity dataset assembled with data
 ## Loading and preprocessing the data:
 
 Load the data:
-```{r}
+
+```r
 activity <- read.csv("activity.csv")
 ```
 
@@ -17,7 +18,8 @@ activity <- read.csv("activity.csv")
 Note: Missing values were ignored.
 
 Create a vector containing the total number of steps taken for each day:
-```{r}
+
+```r
 steps <- numeric()
 index <- 1
 for(each.day in as.data.frame(table(activity$date))[, 1]) {
@@ -27,21 +29,37 @@ for(each.day in as.data.frame(table(activity$date))[, 1]) {
 ```
 
 Create a histogram of the total number of steps taken each day:
-```{r histogram_1}
+
+```r
 hist(steps, main="Total Number of Steps Taken Each Day", xlab="Total Number of Steps", breaks=8)
 ```
 
+![plot of chunk histogram_1](figure/histogram_1.png) 
+
 Calculate mean and median of number of steps taken each day:
-```{r}
+
+```r
 mean(steps, na.rm = TRUE)
+```
+
+```
+## [1] 10766
+```
+
+```r
 median(steps, na.rm = TRUE)
+```
+
+```
+## [1] 10765
 ```
 
 
 ## What is the average daily activity pattern?
 
 Create a vector containing the average number of steps taken during each 5-minute interval:
-```{r}
+
+```r
 all.intervals <- as.data.frame(table(activity$interval))[, 1]
 all.intervals <- as.numeric(levels(all.intervals))[all.intervals]
 index <- 1
@@ -53,25 +71,39 @@ for(each.interval in all.intervals) {
 ```
 
 Plot 5-minute interval vs. average number of steps taken:
-```{r time_series_1}
+
+```r
 plot(all.intervals, interval, main="Average Number of Steps Taken During 5-Minute Interval", xlab="5-Minute Interval", ylab="Average Number of Steps", type="l")
 ```
 
+![plot of chunk time_series_1](figure/time_series_1.png) 
+
 Find the 5-minute interval, which on average, contains the maximum number of steps:
-```{r}
+
+```r
 all.intervals[which(interval == max(interval))]
+```
+
+```
+## [1] 835
 ```
 
 
 ## Imputing Missing Values
 
 Calculate the total number of rows with `NA`:
-```{r}
+
+```r
 nrow(activity) - sum(complete.cases(activity))
 ```
 
+```
+## [1] 2304
+```
+
 Create new dataset and replace `NA` with mean for that 5-minute interval:
-```{r}
+
+```r
 every.interval <- data.frame(all.intervals, interval)
 new.activity <- activity
 index <- 1
@@ -84,7 +116,8 @@ for(each.step in new.activity$steps) {
 ```
 
 Create new histogram for total number of steps taken each day using new dataset with `NA` replaced:
-```{r histogram_2}
+
+```r
 # create vector with total number of steps taken for each day
 new.steps <- numeric()
 index <- 1
@@ -96,10 +129,24 @@ for(each.day in as.data.frame(table(new.activity$date))[, 1]) {
 hist(new.steps, main="Total Number of Steps Taken Each Day", xlab="Total Number of Steps", breaks=8)
 ```
 
+![plot of chunk histogram_2](figure/histogram_2.png) 
+
 Compute mean and median for new dataset:
-```{r}
+
+```r
 mean(new.steps)
+```
+
+```
+## [1] 10766
+```
+
+```r
 median(new.steps)
+```
+
+```
+## [1] 10766
 ```
 
 The mean remained the same, but the median increased by 1. The effect of imputing missing data based on our estimates is negligible.
@@ -108,7 +155,8 @@ The mean remained the same, but the median increased by 1. The effect of imputin
 ## Are there differences in activity patterns between weekdays and weekends?
 
 Determine which days are weekdays and weekends, then add column to dataset:
-```{r}
+
+```r
 dates <- as.Date(new.activity$date)
 day.type <- weekdays(dates)
 weekday.end <- character()
@@ -123,7 +171,8 @@ new.activity <- cbind(new.activity, weektype = as.factor(weekday.end))
 ```
 
 Plot 5-minute interval vs. average number of steps taken:
-```{r time_series_2}
+
+```r
 # separate weekend and weekday data
 wkday.act <- new.activity[new.activity$weektype == 'weekday', ]
 wkend.act <- new.activity[new.activity$weektype == 'weekend', ]
@@ -152,3 +201,5 @@ wkend.set <- data.frame(min = wkend.all.intervals, steps = wkend.interval, type 
 wk.set <- rbind(wkday.set, wkend.set)
 xyplot(steps~min|type, data = wk.set, type = 'l', layout=c(1,2), xlab="5-Minute Interval", ylab="Average Number of Steps")
 ```
+
+![plot of chunk time_series_2](figure/time_series_2.png) 
